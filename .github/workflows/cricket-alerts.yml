@@ -1,0 +1,56 @@
+name: Cricket Alerts
+
+on:
+  schedule:
+    # Every 30 minutes. Chosen to keep worst-case daily API usage well under
+    # the free 100-hits/day cap even if a match is live all day (see
+    # bot/cricket_bot.py for the in-code budget enforcement as well).
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (fetch real data, but never send Telegram messages)"
+        type: boolean
+        default: true
+
+# Prevent overlapping runs from racing on state.json.
+concurrency:
+  group: cricket-alerts
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - name: Run cricket bot
+        env:
+          CRICKET_API_KEY: ${{ secrets.CRICKET_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # Scheduled runs are always live. Manual runs default to dry-run
+          # unless explicitly set to false in the workflow_dispatch inputs.
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        run: python -m bot.cricket_bot
+
+      - name: Commit updated state
+        run: |
+          git config user.name "cricket-alerts-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if ! git diff --quiet -- bot/state.json; then
+            git add bot/state.json
+            git commit -m "Update bot state [skip ci]"
+            git push
+          else
+            echo "No state change to commit"
+          fi
