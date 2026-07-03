@@ -469,8 +469,31 @@ def prune_old_matches(state, keep_last=50):
         del matches[mid]
 
 
+TEST_MESSAGE = (
+    "crickbot setup check: this is a test message. If you received this, "
+    "your TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID secrets are configured "
+    "correctly. This message is not tied to any real match."
+)
+
+
+def run_telegram_self_test(config):
+    """Send one fixed message to prove the Telegram credentials work, with
+    zero CricketData API calls and no interaction with match state."""
+    ok = send_telegram(config, TEST_MESSAGE)
+    if ok:
+        log("Telegram self-test message sent successfully.")
+    else:
+        log("Telegram self-test FAILED to send -- check the bot token and chat ID.")
+        sys.exit(1)
+
+
 def run(state_path):
     config = load_config()
+
+    if os.environ.get("SEND_TEST_MESSAGE", "false").strip().lower() == "true":
+        run_telegram_self_test(config)
+        return
+
     state = load_state(state_path)
     budget = ApiBudget(state)
 

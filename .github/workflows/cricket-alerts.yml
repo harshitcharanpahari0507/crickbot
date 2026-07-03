@@ -12,6 +12,10 @@ on:
         description: "Dry run (fetch real data, but never send Telegram messages)"
         type: boolean
         default: true
+      send_test_message:
+        description: "Send one fixed Telegram test message instead of polling matches (zero CricketData API calls)"
+        type: boolean
+        default: false
 
 # Prevent overlapping runs from racing on state.json.
 concurrency:
@@ -25,9 +29,9 @@ jobs:
   poll:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -41,6 +45,7 @@ jobs:
           # Scheduled runs are always live. Manual runs default to dry-run
           # unless explicitly set to false in the workflow_dispatch inputs.
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          SEND_TEST_MESSAGE: ${{ github.event_name == 'workflow_dispatch' && inputs.send_test_message || 'false' }}
         run: python -m bot.cricket_bot
 
       - name: Commit updated state

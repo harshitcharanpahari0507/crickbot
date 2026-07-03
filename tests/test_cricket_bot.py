@@ -302,6 +302,27 @@ class DryRunTests(unittest.TestCase):
         mock_post.assert_called_once()
 
 
+class TelegramSelfTestTests(unittest.TestCase):
+    @patch("bot.cricket_bot.fetch_current_matches")
+    @patch("bot.cricket_bot.send_telegram", return_value=True)
+    def test_self_test_sends_message_and_skips_polling(self, mock_send, mock_fetch):
+        env = {"CRICKET_API_KEY": "k", "DRY_RUN": "false", "SEND_TEST_MESSAGE": "true",
+               "TELEGRAM_BOT_TOKEN": "t", "TELEGRAM_CHAT_ID": "c"}
+        with patch.dict(os.environ, env, clear=True):
+            cb.run("unused_state_path.json")
+        mock_send.assert_called_once_with(
+            {"api_key": "k", "bot_token": "t", "chat_id": "c", "dry_run": False},
+            cb.TEST_MESSAGE,
+        )
+        mock_fetch.assert_not_called()
+
+    @patch("bot.cricket_bot.send_telegram", return_value=False)
+    def test_self_test_exits_nonzero_on_failure(self, mock_send):
+        config = {"api_key": "k", "bot_token": "t", "chat_id": "c", "dry_run": False}
+        with self.assertRaises(SystemExit):
+            cb.run_telegram_self_test(config)
+
+
 class ConfigTests(unittest.TestCase):
     def test_missing_api_key_raises(self):
         with patch.dict(os.environ, {}, clear=True):
