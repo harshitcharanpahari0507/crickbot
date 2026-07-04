@@ -77,6 +77,19 @@ docstring at the top of `bot/cricket_bot.py` and in `README.md`.
   doesn't burn an API hit every 30-minute run during the ~10 months/year
   with no IPL season. If you touch `maybe_refresh_series`, keep that
   throttle — removing it reintroduces a quota-burn risk.
+- **Known accepted limitation: some matches have zero live data on
+  CricketData.org's free tier**, even once correctly discovered. Confirmed
+  2026-07-04 on the England vs India 2nd T20I: `match_info` never populated
+  toss/score (stuck on the pre-match placeholder status) and
+  `match_scorecard` returned `"ERR: Scorecard ... not found"`, despite
+  `matchStarted: true`. Correlates with `fantasyEnabled: false` /
+  `bbbEnabled: false` on that match — the provider seems to lack a live
+  feed for some fixtures (rights/tier gap on their end), though data may
+  still backfill after the match ends (observed on the 1st T20I in the
+  same series). **This is not a bug to chase** — the user explicitly chose
+  to accept this rather than add a fallback data source (e.g. a Cricbuzz
+  scraper). Don't spend time trying to "fix" missing live data for a
+  specific match without re-confirming with the user first.
 - Secrets (`CRICKET_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) live
   only in GitHub Actions Secrets. Never hardcode them, never log them, never
   write them into `bot/state.json` or any committed file.
