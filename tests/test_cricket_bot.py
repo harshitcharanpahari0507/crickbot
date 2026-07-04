@@ -75,6 +75,202 @@ class ApiBudgetTests(unittest.TestCase):
         self.assertFalse(budget.quota_exhausted_today)
 
 
+class SeriesDateParsingTests(unittest.TestCase):
+    def test_parses_full_iso_date(self):
+        self.assertEqual(cb.parse_series_date("2026-07-01"), cb.datetime(2026, 7, 1).date())
+
+    def test_parses_month_day_using_reference_year(self):
+        result = cb.parse_series_date("Jul 19", "2026-07-01")
+        self.assertEqual(result, cb.datetime(2026, 7, 19).date())
+
+    def test_rolls_forward_year_on_boundary_crossing(self):
+        result = cb.parse_series_date("Jan 07", "2026-12-20")
+        self.assertEqual(result, cb.datetime(2027, 1, 7).date())
+
+    def test_returns_none_for_garbage(self):
+        self.assertIsNone(cb.parse_series_date("not a date"))
+        self.assertIsNone(cb.parse_series_date(""))
+        self.assertIsNone(cb.parse_series_date(None))
+
+
+class SeriesNameHeuristicTests(unittest.TestCase):
+    def test_excludes_non_senior_series(self):
+        self.assertFalse(cb.is_series_name_worth_expanding("India U19 tour of Sri Lanka 2026"))
+        self.assertFalse(cb.is_series_name_worth_expanding("India A tour of Sri Lanka 2026"))
+        self.assertFalse(cb.is_series_name_worth_expanding("England Women tour of India 2026"))
+
+    def test_allows_senior_series(self):
+        self.assertTrue(cb.is_series_name_worth_expanding("India tour of England, 2026"))
+        self.assertTrue(cb.is_series_name_worth_expanding("Indian Premier League 2026"))
+
+
+class RefreshWatchedSeriesTests(unittest.TestCase):
+    def _state(self):
+        return cb.default_state()
+
+    @patch("bot.cricket_bot.fetch_series_info")
+    @patch("bot.cricket_bot.fetch_series_search")
+    def test_caches_series_covering_today_with_relevant_matches(self, mock_search, mock_info):
+        mock_search.return_value = [
+            {
+                "id": "s1",
+                "name": "India tour of England, 2026",
+                "startDate": "2026-07-01",
+                "endDate": "Jul 19",
+            }
+        ]
+        mock_info.return_value = [
+            make_match(id="m1", teams=("England", "India")),
+            make_match(id="m2", teams=("Somewhere A", "Somewhere B")),
+        ]
+        state = self._state()
+        budget = cb.ApiBudget(state)
+        today = cb.datetime(2026, 7, 4).date()
+
+        cached = cb.refresh_watched_series("india", "India", "key", state, budget, today)
+
+        self.assertTrue(cached)
+        self.assertIn("s1", state["watched_series"])
+        matches = state["watched_series"]["s1"]["matches"]
+        self.assertEqual([m["id"] for m in matches], ["m1"])
+        self.assertEqual(state["watched_series"]["s1"]["end_date"], "2026-07-19")
+
+    @patch("bot.cricket_bot.fetch_series_info")
+    @patch("bot.cricket_bot.fetch_series_search")
+    def test_skips_series_not_covering_today_or_soon(self, mock_search, mock_info):
+        mock_search.return_value = [
+            {"id": "s1", "name": "India tour of Zimbabwe 2026", "startDate": "2026-07-23", "endDate": "Jul 26"}
+        ]
+        state = self._state()
+        budget = cb.ApiBudget(state)
+        today = cb.datetime(2026, 7, 4).date()
+
+        cb.refresh_watched_series("india", "India", "key", state, budget, today)
+
+        mock_info.assert_not_called()
+        self.assertEqual(state["watched_series"], {})
+
+    @patch("bot.cricket_bot.fetch_series_info")
+    @patch("bot.cricket_bot.fetch_series_search")
+    def test_skips_non_senior_series_without_expanding(self, mock_search, mock_info):
+        mock_search.return_value = [
+            {"id": "s1", "name": "India U19 tour of Sri Lanka 2026", "startDate": "2026-07-01", "endDate": "Jul 23"}
+        ]
+        state = self._state()
+        budget = cb.ApiBudget(state)
+        today = cb.datetime(2026, 7, 4).date()
+
+        cb.refresh_watched_series("india", "India", "key", state, budget, today)
+
+        mock_info.assert_not_called()
+
+    @patch("bot.cricket_bot.fetch_series_info")
+    @patch("bot.cricket_bot.fetch_series_search")
+    def test_caps_expansions_per_refresh(self, mock_search, mock_info):
+        mock_search.return_value = [
+            {"id": f"s{i}", "name": f"India tour of Place{i}", "startDate": "2026-07-01", "endDate": "Jul 19"}
+            for i in range(10)
+        ]
+        mock_info.return_value = []
+        state = self._state()
+        budget = cb.ApiBudget(state)
+        today = cb.datetime(2026, 7, 4).date()
+
+        cb.refresh_watched_series("india", "India", "key", state, budget, today)
+
+        self.assertEqual(mock_info.call_count, cb.MAX_NEW_SERIES_EXPANSIONS_PER_REFRESH)
+
+
+class MaybeRefreshSeriesTests(unittest.TestCase):
+    @patch("bot.cricket_bot.refresh_watched_series", return_value=True)
+    def test_skips_when_series_already_active(self, mock_refresh):
+        state = cb.default_state()
+        state["watched_series"]["s1"] = {"kind": "india", "end_date": "2026-07-19", "matches": []}
+        budget = cb.ApiBudget(state)
+        cb.maybe_refresh_series("india", "India", "key", state, budget, cb.datetime(2026, 7, 4).date())
+        mock_refresh.assert_not_called()
+
+    @patch("bot.cricket_bot.refresh_watched_series", return_value=False)
+    def test_sets_throttle_when_nothing_found(self, mock_refresh):
+        state = cb.default_state()
+        budget = cb.ApiBudget(state)
+        today = cb.datetime(2026, 7, 4).date()
+        cb.maybe_refresh_series("ipl", "Indian Premier League", "key", state, budget, today)
+        expected_retry = (today + cb.timedelta(days=cb.SEARCH_RETRY_DAYS["ipl"])).isoformat()
+        self.assertEqual(state["series_search_next"]["ipl"], expected_retry)
+
+    @patch("bot.cricket_bot.refresh_watched_series")
+    def test_respects_throttle_and_does_not_research(self, mock_refresh):
+        state = cb.default_state()
+        state["series_search_next"]["ipl"] = "2026-07-10"
+        budget = cb.ApiBudget(state)
+        cb.maybe_refresh_series("ipl", "Indian Premier League", "key", state, budget, cb.datetime(2026, 7, 4).date())
+        mock_refresh.assert_not_called()
+
+
+class WatchedSeriesCollectionTests(unittest.TestCase):
+    def test_prune_removes_expired_series(self):
+        state = cb.default_state()
+        state["watched_series"]["old"] = {"kind": "india", "end_date": "2026-01-01", "matches": []}
+        state["watched_series"]["current"] = {"kind": "india", "end_date": "2026-12-01", "matches": []}
+        cb.prune_watched_series(state, "2026-07-04")
+        self.assertNotIn("old", state["watched_series"])
+        self.assertIn("current", state["watched_series"])
+
+    def test_collect_only_returns_matches_dated_today(self):
+        state = cb.default_state()
+        state["watched_series"]["s1"] = {
+            "kind": "india",
+            "end_date": "2026-07-19",
+            "matches": [
+                {"id": "m1", "date": "2026-07-04"},
+                {"id": "m2", "date": "2026-07-07"},
+            ],
+        }
+        result = cb.collect_watched_matches_for_today(state, "2026-07-04")
+        self.assertEqual([m["id"] for m in result], ["m1"])
+
+
+class CurrentMatchesPaginationTests(unittest.TestCase):
+    @patch("bot.cricket_bot.requests.get")
+    def test_stops_at_first_short_page(self, mock_get):
+        mock_get.return_value = MagicMock(
+            status_code=200,
+            json=lambda: {"status": "success", "data": [{"id": "m1"}], "info": {}},
+        )
+        budget = cb.ApiBudget(cb.default_state())
+        result = cb.fetch_current_matches("key", budget)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(mock_get.call_count, 1)
+
+    @patch("bot.cricket_bot.requests.get")
+    def test_pages_until_full_page_boundary(self, mock_get):
+        full_page = [{"id": f"m{i}"} for i in range(cb.CURRENT_MATCHES_PAGE_SIZE)]
+        short_page = [{"id": "last"}]
+        responses = [full_page, short_page]
+
+        def side_effect(*args, **kwargs):
+            data = responses.pop(0)
+            return MagicMock(status_code=200, json=lambda: {"status": "success", "data": data, "info": {}})
+
+        mock_get.side_effect = side_effect
+        budget = cb.ApiBudget(cb.default_state())
+        result = cb.fetch_current_matches("key", budget)
+        self.assertEqual(len(result), cb.CURRENT_MATCHES_PAGE_SIZE + 1)
+        self.assertEqual(mock_get.call_count, 2)
+
+    @patch("bot.cricket_bot.requests.get")
+    def test_stops_at_max_pages_cap(self, mock_get):
+        full_page = [{"id": f"m{i}"} for i in range(cb.CURRENT_MATCHES_PAGE_SIZE)]
+        mock_get.return_value = MagicMock(
+            status_code=200,
+            json=lambda: {"status": "success", "data": full_page, "info": {}},
+        )
+        budget = cb.ApiBudget(cb.default_state())
+        cb.fetch_current_matches("key", budget)
+        self.assertEqual(mock_get.call_count, cb.MAX_CURRENT_MATCHES_PAGES)
+
+
 class ScorecardShapeTests(unittest.TestCase):
     @patch("bot.cricket_bot.requests.get")
     def test_scorecard_unwraps_nested_scorecard_key(self, mock_get):

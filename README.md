@@ -121,7 +121,7 @@ Settings -> Secrets and variables -> Actions:
 
 ```
 pip install -r requirements-dev.txt
-pytest                                    # 34 tests, fully mocked, no network
+pytest                                    # 52 tests, fully mocked, no network
 ```
 
 Dry-run against the *real* API without sending real Telegram messages
@@ -135,8 +135,10 @@ CRICKET_API_KEY=your_key DRY_RUN=true python -m bot.cricket_bot
 > `requests` may fail with `CERTIFICATE_VERIFY_FAILED` even though `curl`
 > succeeds (curl uses the OS cert store; `requests` uses its own bundled
 > `certifi` list, which won't include a corporate MITM root CA). This is a
-> local-machine-only issue — GitHub Actions runners are unaffected. Use
-> `curl` for local ad-hoc API poking if you hit this.
+> local-machine-only issue — GitHub Actions runners are unaffected. Fix it
+> locally with `pip install pip-system-certs` (patches Python's default SSL
+> context to use the OS cert store), or fall back to `curl` for ad-hoc API
+> poking if you'd rather not.
 
 ### Verifying Telegram credentials without waiting for a live match
 
@@ -166,6 +168,33 @@ so the shapes below were confirmed by hitting the live API directly:
   tripped up the first implementation). Each innings has `inning` (label
   string), `batting` (list with `batsman.name`, `r`, `b`, `4s`, `6s`), and
   `bowling` (list with `bowler.name`, `o`, `m`, `r`, `w`).
+- `series` (search) -> `data` is a **list** of series: `id`, `name`,
+  `startDate`/`endDate` (inconsistently either full ISO or `"Mon DD"` with
+  no year — see `parse_series_date`).
+- `series_info` -> `data` is a **dict** with `data.matchList` (a list of
+  match dicts, same shape as `currentMatches` entries).
+
+## Known gap in `currentMatches` (why the series-schedule fallback exists)
+
+`currentMatches` was found in production to **completely omit** a match
+that was genuinely live (`matchStarted: true`, `matchEnded: false`) —
+not buried on a later page, just absent from the entire feed. The pattern
+observed: the omitted match had `fantasyEnabled: false` and
+`bbbEnabled: false`, suggesting `currentMatches` only surfaces matches the
+provider has fuller live-data coverage for. Relying on it alone means
+silently missing real matches with no error or signal.
+
+The fix (`refresh_watched_series` / `maybe_refresh_series` /
+`collect_watched_matches_for_today` in `bot/cricket_bot.py`): resolve the
+actual India-tour and IPL series schedule via the `series` search +
+`series_info` endpoints, cache each series' relevant matches (by exact
+team-name filtering, same `is_relevant()` used everywhere else) until the
+series' end date, and merge those matches in every run alongside whatever
+`currentMatches` finds, deduped by match ID. This is throttled
+(`SEARCH_RETRY_DAYS`) so a fruitless search (e.g. no IPL season in
+progress, which is ~10 months of the year) doesn't repeat every 30-minute
+run — see the module for details. Don't remove this fallback and go back
+to trusting `currentMatches` alone; that's the exact bug this fixed.
 
 ## Adjusting behavior
 

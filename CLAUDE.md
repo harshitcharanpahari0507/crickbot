@@ -62,6 +62,21 @@ docstring at the top of `bot/cricket_bot.py` and in `README.md`.
   `data` itself — this was a real bug caught by testing against the live
   API (the docs site was unreachable/403 when this was built). Don't
   "simplify" `fetch_match_scorecard` back to assuming `data` is the list.
+- **`currentMatches` alone is not a reliable discovery source.** In
+  production it completely omitted a genuinely live India match (not a
+  pagination issue — the match wasn't in the feed at all across every
+  page). The pattern: it had `fantasyEnabled: false` / `bbbEnabled: false`.
+  Fixed by adding `refresh_watched_series`/`maybe_refresh_series`, which
+  resolve matches directly from the India-tour/IPL series schedule
+  (`series` search + `series_info`) and merge them with whatever
+  `currentMatches` finds, deduped by match ID. **Don't remove this
+  fallback and go back to trusting `currentMatches` alone** — that's the
+  exact bug this fixed (2026-07-04: user reported 0 India matches detected
+  during a live India vs England T20I).
+- The series-schedule fallback is throttled (`SEARCH_RETRY_DAYS`) so it
+  doesn't burn an API hit every 30-minute run during the ~10 months/year
+  with no IPL season. If you touch `maybe_refresh_series`, keep that
+  throttle — removing it reintroduces a quota-burn risk.
 - Secrets (`CRICKET_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`) live
   only in GitHub Actions Secrets. Never hardcode them, never log them, never
   write them into `bot/state.json` or any committed file.
@@ -71,10 +86,11 @@ docstring at the top of `bot/cricket_bot.py` and in `README.md`.
 - On this machine, Python's `requests` fails with
   `CERTIFICATE_VERIFY_FAILED` against `api.cricapi.com` because of a
   corporate SSL-inspecting proxy whose root CA isn't in `certifi`'s bundle.
-  `curl` works fine (uses the Windows system cert store). This is local-only
-  — GitHub Actions runners are unaffected. Use `curl` for ad-hoc API
-  exploration on this machine.
-- Tests (`pytest`, 34 tests in `tests/test_cricket_bot.py`) are fully
+  `pip install pip-system-certs` fixes it (patches the default SSL context
+  to use the OS cert store, which trusts the proxy's CA); `curl` also works
+  fine as a fallback for ad-hoc poking. This is local-only — GitHub Actions
+  runners are unaffected.
+- Tests (`pytest`, 52 tests in `tests/test_cricket_bot.py`) are fully
   mocked — no real network or Telegram calls ever happen in the test suite.
   Keep it that way; add new tests with `unittest.mock.patch`, never live
   calls.
@@ -91,7 +107,11 @@ docstring at the top of `bot/cricket_bot.py` and in `README.md`.
 
 ## Status
 
-Feature-complete and live as of 2026-07-03: cron is running every 30
+Feature-complete and live as of 2026-07-04. Cron is running every 30
 minutes, secrets are configured, Telegram delivery confirmed via
 self-test, and real-data dry-runs have been validated in the actual GitHub
-Actions environment.
+Actions environment. On 2026-07-04 the user reported zero India matches
+detected during a live India vs England T20I; root-caused to the
+`currentMatches` discovery gap described above and fixed with the
+series-schedule fallback, verified against live data (correctly found and
+processed both the rained-off 1st T20I and the live 2nd T20I).

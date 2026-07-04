@@ -21,9 +21,10 @@ entirely owned by the caller (GitHub Actions cron). Safety is layered:
 
 import json
 import os
+import re
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import requests
 
@@ -70,6 +71,34 @@ IPL_TEAM_NAMES = {
 CENTURY_THRESHOLD_RUNS = 100
 FIVE_WICKET_HAUL_WICKETS = 5
 
+# currentMatches (the broad "what's live right now" feed) has been observed
+# to omit matches that lack certain live-data flags (fantasyEnabled/
+# bbbEnabled false) even while they're genuinely live. To catch those, we
+# also resolve the actual India-tour / IPL series schedule directly and
+# cache each series' relevant matches until the series ends -- see
+# refresh_watched_series(). MAX_NEW_SERIES_EXPANSIONS_PER_REFRESH bounds
+# how many series_info calls one refresh can make.
+MAX_NEW_SERIES_EXPANSIONS_PER_REFRESH = 3
+SERIES_LOOKAHEAD_DAYS = 2
+
+# If a series search finds nothing current/upcoming to watch, don't retry
+# every run -- throttle re-searches. IPL is only "in season" ~2 months a
+# year, so a longer throttle avoids burning a hit every 30 minutes for
+# 10 months with zero chance of a result; India tours resume more often.
+SEARCH_RETRY_DAYS = {"india": 2, "ipl": 7}
+
+NON_SENIOR_SERIES_NAME_HINTS = (
+    "women",
+    "u19",
+    "u-19",
+    "u 19",
+    "u23",
+    "u-23",
+    "emerging",
+    "academy",
+    "development",
+)
+
 
 def log(message):
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -107,6 +136,8 @@ def default_state():
         "calls_today": 0,
         "quota_exhausted_date": None,
         "matches": {},
+        "watched_series": {},
+        "series_search_next": {},
     }
 
 
@@ -124,6 +155,8 @@ def load_state(path):
     state.setdefault("calls_today", 0)
     state.setdefault("quota_exhausted_date", None)
     state.setdefault("matches", {})
+    state.setdefault("watched_series", {})
+    state.setdefault("series_search_next", {})
     return state
 
 
@@ -134,8 +167,48 @@ def save_state(path, state):
     os.replace(tmp_path, path)
 
 
+def today_date():
+    return datetime.now(timezone.utc).date()
+
+
 def today_str():
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return today_date().isoformat()
+
+
+def parse_series_date(date_str, ref_date_str=None):
+    """Parse a CricketData series date, which is inconsistently either full
+    ISO ("2026-07-01") or month/day only with no year ("Jul 19"). For the
+    latter, borrow the year from ref_date_str (typically the series'
+    startDate) and roll forward a year if that would put the date before
+    the reference (handles a tour spanning a year boundary)."""
+    if not date_str:
+        return None
+    date_str = date_str.strip()
+
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        pass
+
+    ref_year = None
+    ref_date = None
+    if ref_date_str:
+        try:
+            ref_date = datetime.strptime(ref_date_str.strip()[:10], "%Y-%m-%d").date()
+            ref_year = ref_date.year
+        except ValueError:
+            ref_year = None
+    if ref_year is None:
+        ref_year = today_date().year
+
+    try:
+        parsed = datetime.strptime(f"{date_str} {ref_year}", "%b %d %Y").date()
+    except ValueError:
+        return None
+
+    if ref_date and parsed < ref_date:
+        parsed = parsed.replace(year=parsed.year + 1)
+    return parsed
 
 
 class ApiBudget:
@@ -246,9 +319,28 @@ def cricapi_get(endpoint, params, budget):
     return None
 
 
+MAX_CURRENT_MATCHES_PAGES = 4
+CURRENT_MATCHES_PAGE_SIZE = 25
+
+
 def fetch_current_matches(api_key, budget):
-    data = cricapi_get("currentMatches", {"apikey": api_key, "offset": 0}, budget)
-    return data if isinstance(data, list) else []
+    """Page through currentMatches. Note this feed has been observed to
+    still omit some genuinely live matches entirely (see
+    refresh_watched_series for the fallback that catches those) -- this
+    pagination just avoids missing matches buried past page 1 on busy
+    cricket days."""
+    all_matches = []
+    for page in range(MAX_CURRENT_MATCHES_PAGES):
+        if not budget.can_call():
+            break
+        offset = page * CURRENT_MATCHES_PAGE_SIZE
+        data = cricapi_get("currentMatches", {"apikey": api_key, "offset": offset}, budget)
+        if not isinstance(data, list) or not data:
+            break
+        all_matches.extend(data)
+        if len(data) < CURRENT_MATCHES_PAGE_SIZE:
+            break
+    return all_matches
 
 
 def fetch_match_info(api_key, match_id, budget):
@@ -261,6 +353,115 @@ def fetch_match_scorecard(api_key, match_id, budget):
         innings = data.get("scorecard")
         return innings if isinstance(innings, list) else []
     return data if isinstance(data, list) else []
+
+
+def fetch_series_search(api_key, term, budget):
+    data = cricapi_get("series", {"apikey": api_key, "search": term, "offset": 0}, budget)
+    return data if isinstance(data, list) else []
+
+
+def fetch_series_info(api_key, series_id, budget):
+    data = cricapi_get("series_info", {"apikey": api_key, "id": series_id}, budget)
+    if isinstance(data, dict):
+        match_list = data.get("matchList")
+        return match_list if isinstance(match_list, list) else []
+    return []
+
+
+def is_series_name_worth_expanding(name):
+    """Cheap heuristic to avoid wasting a series_info call on an obviously
+    non-senior series. Not the authoritative filter -- is_relevant() on the
+    actual match team names (applied after fetching matchList) is -- so a
+    false positive here just costs one extra call, never a wrong alert."""
+    lower = name.lower()
+    if any(hint in lower for hint in NON_SENIOR_SERIES_NAME_HINTS):
+        return False
+    if re.search(r"\bindia a\b", lower):
+        return False
+    return True
+
+
+def refresh_watched_series(kind, search_term, api_key, state, budget, today):
+    """Search for series matching `search_term`, and cache the relevant
+    (India/IPL) matches of any series that covers today (or starts within
+    SERIES_LOOKAHEAD_DAYS) until that series' end date. Returns True if at
+    least one series was newly cached."""
+    candidates = fetch_series_search(api_key, search_term, budget)
+    cached_any = False
+    expansions = 0
+
+    for series in candidates:
+        if expansions >= MAX_NEW_SERIES_EXPANSIONS_PER_REFRESH or not budget.can_call():
+            break
+
+        series_id = series.get("id")
+        name = series.get("name", "")
+        if not series_id or series_id in state["watched_series"]:
+            continue
+        if not is_series_name_worth_expanding(name):
+            continue
+
+        start = parse_series_date(series.get("startDate"))
+        end = parse_series_date(series.get("endDate"), series.get("startDate"))
+        if not start or not end:
+            continue
+        if end < today or start > today + timedelta(days=SERIES_LOOKAHEAD_DAYS):
+            continue
+
+        match_list = fetch_series_info(api_key, series_id, budget)
+        expansions += 1
+        relevant_matches = [m for m in match_list if m.get("id") and is_relevant(m)]
+        if relevant_matches:
+            state["watched_series"][series_id] = {
+                "kind": kind,
+                "end_date": end.isoformat(),
+                "matches": relevant_matches,
+            }
+            cached_any = True
+            log(
+                f"Watching series '{name}' ({series_id}) through {end.isoformat()}: "
+                f"{len(relevant_matches)} relevant match(es)"
+            )
+
+    return cached_any
+
+
+def prune_watched_series(state, today_str_value):
+    expired = [
+        sid for sid, info in state["watched_series"].items()
+        if info.get("end_date", "") < today_str_value
+    ]
+    for sid in expired:
+        del state["watched_series"][sid]
+
+
+def collect_watched_matches_for_today(state, today_str_value):
+    result = []
+    for info in state["watched_series"].values():
+        for m in info.get("matches", []):
+            if m.get("date") == today_str_value:
+                result.append(m)
+    return result
+
+
+def maybe_refresh_series(kind, search_term, api_key, state, budget, today):
+    """Refresh a kind's ("india"/"ipl") watched series unless one is already
+    active, or we recently searched and found nothing (throttled)."""
+    has_active = any(v["kind"] == kind for v in state["watched_series"].values())
+    if has_active:
+        return
+
+    next_search = state["series_search_next"].get(kind, "")
+    if next_search > today.isoformat():
+        return
+
+    if not budget.can_call():
+        return
+
+    cached_any = refresh_watched_series(kind, search_term, api_key, state, budget, today)
+    if not cached_any:
+        retry_after = today + timedelta(days=SEARCH_RETRY_DAYS.get(kind, 3))
+        state["series_search_next"][kind] = retry_after.isoformat()
 
 
 def is_india_international(match):
@@ -502,11 +703,25 @@ def run(state_path):
         save_state(state_path, state)
         return
 
-    matches = fetch_current_matches(config["api_key"], budget)
-    log(f"Fetched {len(matches)} current match(es) from the API")
+    today = today_date()
+    today_iso = today.isoformat()
+    prune_watched_series(state, today_iso)
 
-    relevant = [m for m in matches if is_relevant(m)]
-    log(f"{len(relevant)} match(es) are India-international or IPL")
+    matches = fetch_current_matches(config["api_key"], budget)
+    log(f"Fetched {len(matches)} current match(es) from the currentMatches feed")
+
+    relevant_by_id = {m["id"]: m for m in matches if m.get("id") and is_relevant(m)}
+
+    # currentMatches has been observed to omit some genuinely live matches
+    # entirely, so also resolve today's matches from the actual India-tour /
+    # IPL series schedule and merge them in (deduped by match id).
+    maybe_refresh_series("india", "India", config["api_key"], state, budget, today)
+    maybe_refresh_series("ipl", "Indian Premier League", config["api_key"], state, budget, today)
+    for m in collect_watched_matches_for_today(state, today_iso):
+        relevant_by_id.setdefault(m["id"], m)
+
+    relevant = list(relevant_by_id.values())
+    log(f"{len(relevant)} match(es) are India-international or IPL (currentMatches + series schedule)")
 
     for match in relevant[:MAX_MATCHES_PER_RUN]:
         if not budget.can_call():
