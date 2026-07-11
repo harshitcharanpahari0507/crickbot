@@ -1,6 +1,6 @@
 {
-  "calls_today": 41,
-  "date": "2026-07-10",
+  "calls_today": 16,
+  "date": "2026-07-11",
   "matches": {
     "3c0f46f4-033c-4bb9-986e-00ae9e235c96": {
       "centuries_sent": [],
@@ -15,6 +15,13 @@
       "fivefers_sent": [],
       "result_sent": true,
       "toss_sent": true
+    },
+    "54ffa207-60d3-4d20-8df5-d19f376ef556": {
+      "centuries_sent": [],
+      "completed": false,
+      "fivefers_sent": [],
+      "result_sent": false,
+      "toss_sent": false
     },
     "c233febb-15cc-430a-90dd-89628c13e028": {
       "centuries_sent": [],
@@ -33,7 +40,7 @@
   },
   "quota_exhausted_date": null,
   "series_search_next": {
-    "ipl": "2026-07-11"
+    "ipl": "2026-07-18"
   },
   "watched_series": {
     "660b3bb0-f5ce-453d-835f-5456a1de1c5e": {
