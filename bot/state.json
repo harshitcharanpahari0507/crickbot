@@ -1,6 +1,6 @@
 {
-  "calls_today": 62,
-  "date": "2026-07-17",
+  "calls_today": 7,
+  "date": "2026-07-18",
   "matches": {
     "365b2e0f-3659-4429-b6f1-9b44fe69da32": {
       "centuries_sent": [],
@@ -56,7 +56,7 @@
   },
   "quota_exhausted_date": null,
   "series_search_next": {
-    "ipl": "2026-07-18"
+    "ipl": "2026-07-25"
   },
   "watched_series": {
     "660b3bb0-f5ce-453d-835f-5456a1de1c5e": {
