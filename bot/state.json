@@ -1,6 +1,6 @@
 {
-  "calls_today": 15,
-  "date": "2026-07-21",
+  "calls_today": 6,
+  "date": "2026-07-22",
   "matches": {
     "112c507b-c719-4c33-a482-da3d6f1cb117": {
       "centuries_sent": [],
@@ -66,5 +66,102 @@
     "india": "2026-07-22",
     "ipl": "2026-07-25"
   },
-  "watched_series": {}
+  "watched_series": {
+    "a5cb9f61-1d86-43ea-bb6a-085df6422bd0": {
+      "end_date": "2026-07-26",
+      "kind": "india",
+      "matches": [
+        {
+          "bbbEnabled": false,
+          "date": "2026-07-25",
+          "dateTimeGMT": "2026-07-25T11:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "610cac66-a929-4422-9a45-3ee22ff1c3c8",
+          "matchEnded": false,
+          "matchStarted": false,
+          "matchType": "t20",
+          "name": "Zimbabwe vs India, 2nd T20I, India tour of Zimbabwe 2026",
+          "status": "",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/575-637877079629985215.webp?w=48",
+              "name": "Zimbabwe",
+              "shortname": "ZIM"
+            }
+          ],
+          "teams": [
+            "Zimbabwe",
+            "India"
+          ],
+          "venue": ""
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-07-23",
+          "dateTimeGMT": "2026-07-23T11:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "ff0a1980-f7ef-403b-8396-42b65ef62a8b",
+          "matchEnded": false,
+          "matchStarted": false,
+          "matchType": "t20",
+          "name": "Zimbabwe vs India, 1st T20I, India tour of Zimbabwe 2026",
+          "status": "",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/575-637877079629985215.webp?w=48",
+              "name": "Zimbabwe",
+              "shortname": "ZIM"
+            }
+          ],
+          "teams": [
+            "Zimbabwe",
+            "India"
+          ],
+          "venue": ""
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-07-26",
+          "dateTimeGMT": "2026-07-26T11:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "1f11e2ab-0cdd-4a4c-b61d-5e7b128e3b6e",
+          "matchEnded": false,
+          "matchStarted": false,
+          "matchType": "t20",
+          "name": "Zimbabwe vs India, 3rd T20I, India tour of Zimbabwe 2026",
+          "status": "",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/575-637877079629985215.webp?w=48",
+              "name": "Zimbabwe",
+              "shortname": "ZIM"
+            }
+          ],
+          "teams": [
+            "Zimbabwe",
+            "India"
+          ],
+          "venue": ""
+        }
+      ]
+    }
+  }
 }
