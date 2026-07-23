@@ -1,5 +1,5 @@
 {
-  "calls_today": 18,
+  "calls_today": 31,
   "date": "2026-07-23",
   "matches": {
     "112c507b-c719-4c33-a482-da3d6f1cb117": {
@@ -68,7 +68,7 @@
       "completed": false,
       "fivefers_sent": [],
       "result_sent": false,
-      "toss_sent": false
+      "toss_sent": true
     }
   },
   "quota_exhausted_date": null,
