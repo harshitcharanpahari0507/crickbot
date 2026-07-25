@@ -1,5 +1,5 @@
 {
-  "calls_today": 47,
+  "calls_today": 60,
   "date": "2026-07-25",
   "matches": {
     "112c507b-c719-4c33-a482-da3d6f1cb117": {
@@ -44,9 +44,9 @@
     },
     "610cac66-a929-4422-9a45-3ee22ff1c3c8": {
       "centuries_sent": [],
-      "completed": false,
+      "completed": true,
       "fivefers_sent": [],
-      "result_sent": false,
+      "result_sent": true,
       "toss_sent": true
     },
     "a5ecf1bb-1f8c-4a4d-9165-67aa61af2ea2": {
