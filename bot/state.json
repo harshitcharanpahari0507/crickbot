@@ -1,6 +1,6 @@
 {
-  "calls_today": 7,
-  "date": "2026-09-08",
+  "calls_today": 4,
+  "date": "2026-09-09",
   "matches": {
     "112c507b-c719-4c33-a482-da3d6f1cb117": {
       "centuries_sent": [
@@ -87,7 +87,7 @@
   },
   "quota_exhausted_date": null,
   "series_search_next": {
-    "india": "2026-09-09",
+    "india": "2026-09-11",
     "ipl": "2026-09-12"
   },
   "watched_series": {}
