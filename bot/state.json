@@ -1,6 +1,6 @@
 {
-  "calls_today": 6,
-  "date": "2026-10-02",
+  "calls_today": 4,
+  "date": "2026-10-03",
   "matches": {
     "112c507b-c719-4c33-a482-da3d6f1cb117": {
       "centuries_sent": [
@@ -84,6 +84,13 @@
       "result_sent": true,
       "toss_sent": true
     },
+    "da91f633-acac-4449-86f8-9bff6244053f": {
+      "centuries_sent": [],
+      "completed": false,
+      "fivefers_sent": [],
+      "result_sent": false,
+      "toss_sent": false
+    },
     "e3632198-a749-48d3-95b6-2f85c4e06a03": {
       "centuries_sent": [],
       "completed": true,
@@ -102,7 +109,7 @@
   "quota_exhausted_date": null,
   "series_search_next": {
     "india": "2026-09-25",
-    "ipl": "2026-10-03"
+    "ipl": "2026-10-10"
   },
   "watched_series": {
     "702ce6cb-a551-4aab-961e-0ed1548a3c74": {
