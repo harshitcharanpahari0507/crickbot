@@ -1,6 +1,6 @@
 {
-  "calls_today": 16,
-  "date": "2026-10-16",
+  "calls_today": 8,
+  "date": "2026-10-17",
   "matches": {
     "0643db2e-fd71-41d6-bad1-df3513607f3f": {
       "centuries_sent": [
@@ -139,6 +139,13 @@
       "result_sent": true,
       "toss_sent": true
     },
+    "f6ac293e-72ae-434e-aabc-dec0bdcc2114": {
+      "centuries_sent": [],
+      "completed": false,
+      "fivefers_sent": [],
+      "result_sent": false,
+      "toss_sent": false
+    },
     "ff0a0eb6-4abf-474b-9aa6-99fac469b2f2": {
       "centuries_sent": [
         "Shai Hope|West Indies Inning 1"
@@ -159,7 +166,7 @@
   "quota_exhausted_date": null,
   "series_search_next": {
     "india": "2026-09-25",
-    "ipl": "2026-10-17"
+    "ipl": "2026-10-24"
   },
   "watched_series": {
     "702ce6cb-a551-4aab-961e-0ed1548a3c74": {
