@@ -1,6 +1,6 @@
 {
-  "calls_today": 21,
-  "date": "2026-10-19",
+  "calls_today": 8,
+  "date": "2026-10-20",
   "matches": {
     "0643db2e-fd71-41d6-bad1-df3513607f3f": {
       "centuries_sent": [
@@ -168,5 +168,365 @@
     "india": "2026-10-20",
     "ipl": "2026-10-24"
   },
-  "watched_series": {}
+  "watched_series": {
+    "9f0a2527-1508-42b3-9945-4ade13fd4b5a": {
+      "end_date": "2026-12-01",
+      "kind": "india",
+      "matches": [
+        {
+          "bbbEnabled": false,
+          "date": "2026-11-13",
+          "dateTimeGMT": "2026-11-13T02:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "dcd3e81d-98af-4ccc-b42a-05a6f3bd59e8",
+          "matchEnded": false,
+          "matchStarted": false,
+          "name": "New Zealand vs India, 4th ODI, India tour of New Zealand 2026",
+          "status": "Match starts at Nov 13, 02:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Bay Oval, Mount Maunganui"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-11-27",
+          "dateTimeGMT": "2026-11-27T22:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "c81e7d49-463b-478a-bc28-06608c6466d2",
+          "matchEnded": false,
+          "matchStarted": false,
+          "name": "New Zealand vs India, 2nd Test, India tour of New Zealand 2026",
+          "status": "Match starts at Nov 27, 22:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Hagley Oval, Christchurch"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-11-07",
+          "dateTimeGMT": "2026-11-07T02:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "8d868342-e1d5-4f86-a4f0-093f6abab3f9",
+          "matchEnded": false,
+          "matchStarted": false,
+          "name": "New Zealand vs India, 2nd ODI, India tour of New Zealand 2026",
+          "status": "Match starts at Nov 07, 02:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Sky Stadium, Wellington"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-10-24",
+          "dateTimeGMT": "2026-10-24T07:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "7a614754-d3c7-4690-b8b2-2759ff00a673",
+          "matchEnded": false,
+          "matchStarted": false,
+          "matchType": "t20",
+          "name": "New Zealand vs India, 2nd T20I, India tour of New Zealand 2026",
+          "status": "Match starts at Oct 24, 07:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Hagley Oval, Christchurch"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-11-10",
+          "dateTimeGMT": "2026-11-10T02:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "4cb54768-b317-42c6-bb7d-409dd2a6c862",
+          "matchEnded": false,
+          "matchStarted": false,
+          "name": "New Zealand vs India, 3rd ODI, India tour of New Zealand 2026",
+          "status": "Match starts at Nov 10, 02:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Seddon Park, Hamilton"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-10-22",
+          "dateTimeGMT": "2026-10-22T07:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "68be7da0-0e0a-4009-bca0-5a76dcc1d564",
+          "matchEnded": false,
+          "matchStarted": false,
+          "matchType": "t20",
+          "name": "New Zealand vs India, 1st T20I, India tour of New Zealand 2026",
+          "status": "Match starts at Oct 22, 07:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Hagley Oval, Christchurch"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-11-01",
+          "dateTimeGMT": "2026-11-01T07:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "936348e9-608f-4ca8-9cc5-5d3082ab0b90",
+          "matchEnded": false,
+          "matchStarted": false,
+          "matchType": "t20",
+          "name": "New Zealand vs India, 5th T20I, India tour of New Zealand 2026",
+          "status": "Match starts at Nov 01, 07:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Seddon Park, Hamilton"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-11-04",
+          "dateTimeGMT": "2026-11-04T02:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "c547eb46-2025-413a-b7f2-6d1584daa42f",
+          "matchEnded": false,
+          "matchStarted": false,
+          "name": "New Zealand vs India, 1st ODI, India tour of New Zealand 2026",
+          "status": "Match starts at Nov 04, 02:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Eden Park, Auckland"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-10-30",
+          "dateTimeGMT": "2026-10-30T07:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "2445a90a-eef7-467e-8cb6-75c4203a8e2c",
+          "matchEnded": false,
+          "matchStarted": false,
+          "matchType": "t20",
+          "name": "New Zealand vs India, 4th T20I, India tour of New Zealand 2026",
+          "status": "Match starts at Oct 30, 07:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Eden Park, Auckland"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-11-15",
+          "dateTimeGMT": "2026-11-15T02:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "8f6dadd6-2ac1-48b7-bfd4-a07ac156ca1b",
+          "matchEnded": false,
+          "matchStarted": false,
+          "name": "New Zealand vs India, 5th ODI, India tour of New Zealand 2026",
+          "status": "Match starts at Nov 15, 02:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Bay Oval, Mount Maunganui"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-10-27",
+          "dateTimeGMT": "2026-10-27T07:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "1962f911-9e43-4b49-9e02-f3ef74b76fe6",
+          "matchEnded": false,
+          "matchStarted": false,
+          "matchType": "t20",
+          "name": "New Zealand vs India, 3rd T20I, India tour of New Zealand 2026",
+          "status": "Match starts at Oct 27, 07:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Sky Stadium, Wellington"
+        },
+        {
+          "bbbEnabled": false,
+          "date": "2026-11-19",
+          "dateTimeGMT": "2026-11-19T22:00:00",
+          "fantasyEnabled": false,
+          "hasSquad": false,
+          "id": "163a0512-5f23-4446-b450-fa888e36038e",
+          "matchEnded": false,
+          "matchStarted": false,
+          "name": "New Zealand vs India, 1st Test, India tour of New Zealand 2026",
+          "status": "Match starts at Nov 19, 22:00 GMT",
+          "teamInfo": [
+            {
+              "img": "https://g.cricapi.com/iapi/31-637877061080567215.webp?w=48",
+              "name": "India",
+              "shortname": "IND"
+            },
+            {
+              "img": "https://g.cricapi.com/iapi/57-637877076980737903.webp?w=48",
+              "name": "New Zealand",
+              "shortname": "NZ"
+            }
+          ],
+          "teams": [
+            "New Zealand",
+            "India"
+          ],
+          "venue": "Basin Reserve, Wellington"
+        }
+      ]
+    }
+  }
 }
