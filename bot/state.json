@@ -1,6 +1,6 @@
 {
-  "calls_today": 12,
-  "date": "2026-11-03",
+  "calls_today": 7,
+  "date": "2026-11-04",
   "matches": {
     "0643db2e-fd71-41d6-bad1-df3513607f3f": {
       "centuries_sent": [
@@ -177,6 +177,13 @@
       "fivefers_sent": [],
       "result_sent": true,
       "toss_sent": true
+    },
+    "c547eb46-2025-413a-b7f2-6d1584daa42f": {
+      "centuries_sent": [],
+      "completed": false,
+      "fivefers_sent": [],
+      "result_sent": false,
+      "toss_sent": false
     },
     "d342801e-1419-4024-880a-7e0faa697a63": {
       "centuries_sent": [],
