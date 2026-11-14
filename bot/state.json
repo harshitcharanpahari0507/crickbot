@@ -1,6 +1,6 @@
 {
-  "calls_today": 22,
-  "date": "2026-11-13",
+  "calls_today": 5,
+  "date": "2026-11-14",
   "matches": {
     "0643db2e-fd71-41d6-bad1-df3513607f3f": {
       "centuries_sent": [
@@ -265,7 +265,7 @@
   "quota_exhausted_date": null,
   "series_search_next": {
     "india": "2026-10-20",
-    "ipl": "2026-11-14"
+    "ipl": "2026-11-21"
   },
   "watched_series": {
     "9f0a2527-1508-42b3-9945-4ade13fd4b5a": {
