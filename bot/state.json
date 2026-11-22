@@ -1,5 +1,5 @@
 {
-  "calls_today": 30,
+  "calls_today": 45,
   "date": "2026-11-22",
   "matches": {
     "0643db2e-fd71-41d6-bad1-df3513607f3f": {
@@ -25,7 +25,8 @@
       "centuries_sent": [
         "Henry Nicholls|New Zealand Inning 1",
         "Glenn Phillips|New Zealand Inning 1",
-        "KL Rahul|India Inning 1"
+        "KL Rahul|India Inning 1",
+        "Rishabh Pant|India Inning 1"
       ],
       "completed": false,
       "fivefers_sent": [],
