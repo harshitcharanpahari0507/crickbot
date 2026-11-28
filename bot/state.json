@@ -1,6 +1,6 @@
 {
-  "calls_today": 14,
-  "date": "2026-11-27",
+  "calls_today": 20,
+  "date": "2026-11-28",
   "matches": {
     "0643db2e-fd71-41d6-bad1-df3513607f3f": {
       "centuries_sent": [
@@ -221,7 +221,9 @@
     "c81e7d49-463b-478a-bc28-06608c6466d2": {
       "centuries_sent": [],
       "completed": false,
-      "fivefers_sent": [],
+      "fivefers_sent": [
+        "Akash Deep|New Zealand Inning 1"
+      ],
       "result_sent": false,
       "toss_sent": true
     },
@@ -291,7 +293,7 @@
   "quota_exhausted_date": null,
   "series_search_next": {
     "india": "2026-10-20",
-    "ipl": "2026-11-28"
+    "ipl": "2026-12-05"
   },
   "watched_series": {
     "9f0a2527-1508-42b3-9945-4ade13fd4b5a": {
